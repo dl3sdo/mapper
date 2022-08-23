@@ -1,6 +1,7 @@
 /*
  *    Copyright 2012, 2013 Thomas Schöps
  *    Copyright 2012-2015 Kai Pastor
+ *    Copyright 2022 Libor Pecháček
  *
  *    This file is part of OpenOrienteering.
  *
@@ -136,19 +137,22 @@ void MeasureWidget::objectSelectionChanged()
 						for (auto part_num = 0; part_num < symbol->getNumParts(); ++part_num)
 						{
 							auto const* part = symbol->getPart(part_num);
-							if (part->getType() == Symbol::Area)
+							if (part)
 							{
-								auto symbol_min_area = 0.001 * part->asArea()->getMinimumArea();
-								if (symbol_min_area < minimum_area)
-									minimum_area = symbol_min_area;
-							}
-							else if (part->getType() == Symbol::Combined)
-							{
-								to_be_examined.push(part->asCombined());
+								if (part->getType() == Symbol::Area)
+								{
+									auto symbol_min_area = 0.001 * part->asArea()->getMinimumArea();
+									if (symbol_min_area < minimum_area)
+										minimum_area = symbol_min_area;
+								}
+								else if (part->getType() == Symbol::Combined)
+								{
+									to_be_examined.push(part->asCombined());
+								}
 							}
 						}
 					}
-					while(!to_be_examined.empty());
+					while (!to_be_examined.empty());
 					minimum_area_text = locale().toString(minimum_area, 'f', 2);
 				}
 				
