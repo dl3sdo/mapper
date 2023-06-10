@@ -1,6 +1,6 @@
 /*
  *    Copyright 2012-2014 Thomas Schöps
- *    Copyright 2013-2020 Kai Pastor
+ *    Copyright 2013-2023 Kai Pastor
  *
  *    This file is part of OpenOrienteering.
  *
@@ -24,6 +24,7 @@
 #include <cmath>
 #include <stdexcept>
 
+//#include <QAction>
 #include <QApplication>
 #include <QColor>
 #include <QContextMenuEvent>
@@ -64,6 +65,8 @@
 #include "gui/widgets/action_grid_bar.h"
 #include "gui/widgets/key_button_bar.h"
 #include "gui/widgets/pie_menu.h"
+#include "gui/widgets/symbol_render_widget.h"
+#include "gui/widgets/symbol_wheel.h"
 #include "sensors/gps_display.h"
 #include "sensors/gps_temporary_markers.h"
 #include "templates/template.h"
@@ -107,6 +110,7 @@ MapWidget::MapWidget(bool show_help, bool force_antialiasing, QWidget* parent)
 	context_menu = new PieMenu(this);
 // 	context_menu->setMinimumActionCount(8);
 // 	context_menu->setIconSize(24);
+	symbol_wheel_menu = new SymbolWheelMenu(this);
 	
 	setAttribute(Qt::WA_OpaquePaintEvent);
 	setAttribute(Qt::WA_AcceptTouchEvents, true);
@@ -143,6 +147,7 @@ void MapWidget::setMapView(MapView* view)
 			connect(this->view, &MapView::panOffsetChanged, this, &MapWidget::setPanOffset);
 			
 			auto* map = this->view->getMap();
+			symbol_wheel_menu->setMap(map);
 			map->addMapWidget(this);
 			connect(map, &Map::colorAdded, this, &MapWidget::updatePlaceholder);
 			connect(map, &Map::colorDeleted, this, &MapWidget::updatePlaceholder);
@@ -1024,8 +1029,16 @@ void MapWidget::_mousePressEvent(QMouseEvent* event)
 	}
 	else if (event->button() == Qt::RightButton)
 	{
-		if (!context_menu->isEmpty())
-			context_menu->popup(event->globalPos());
+		if (event->modifiers() == Qt::ControlModifier)
+		{
+			if (symbol_wheel_menu->setupSymbolPie())
+				symbol_wheel_menu->getSymbolPieMenu()->popup(event->globalPos());
+		}
+		else
+		{
+			if (!context_menu->isEmpty())
+				context_menu->popup(event->globalPos());
+		}
 	}
 }
 

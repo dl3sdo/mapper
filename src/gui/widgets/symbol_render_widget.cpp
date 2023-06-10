@@ -1,6 +1,6 @@
 /*
  *    Copyright 2012, 2013 Thomas Schöps
- *    Copyright 2014-2019 Kai Pastor
+ *    Copyright 2014-2023 Kai Pastor
  *
  *    This file is part of OpenOrienteering.
  *
@@ -45,6 +45,7 @@
 #include "core/symbols/symbol_icon_decorator.h"
 #include "core/symbols/text_symbol.h"
 #include "gui/symbols/symbol_setting_dialog.h"
+#include "gui/widgets/symbol_wheel.h"
 #include "gui/widgets/symbol_tooltip.h"
 #include "util/backports.h"  // IWYU pragma: keep
 #include "util/overriding_shortcut.h"
@@ -152,6 +153,8 @@ SymbolRenderWidget::SymbolRenderWidget(Map* map, bool mobile_mode, QWidget* pare
 	sort_manual_action = sort_menu->addAction(tr("Enable drag and drop"));
 	sort_manual_action->setCheckable(true);
 	context_menu->addMenu(sort_menu);
+	
+	select_wheel_symbols_action = context_menu->addAction(tr("Add selected symbols to symbol wheel menu"), this, SLOT(addSymbolsToWheelMenu()));
 	
 	connect(map, &Map::colorDeleted, this, QOverload<>::of(&QWidget::update));
 	connect(map, &Map::symbolAdded, this, &SymbolRenderWidget::updateAll);
@@ -1108,6 +1111,7 @@ void SymbolRenderWidget::updateContextMenuState()
 	protect_action->setChecked(all_symbols_protected);
 	duplicate_action->setEnabled(single_selection);
 	delete_action->setEnabled(have_selection);
+	select_wheel_symbols_action->setEnabled(have_selection);
 
 	if (single_selection)
 	{
@@ -1171,5 +1175,19 @@ void SymbolRenderWidget::sort(T compare)
 	update();
 }
 
+// slot
+void SymbolRenderWidget::addSymbolsToWheelMenu()
+{
+	QVector<int> symbol_indexes;
+	//std::vector<int> symbol_indexes;
+	auto i = 0;
+	for (auto symbol_index : selected_symbols)
+	{
+		symbol_indexes.push_back(symbol_index);
+		if (++i == SymbolWheelMenu::max_wheel_size)	// limit number of symbols to be shown already here
+			break;
+	}
+	emit addToSymbolWheelMenu(symbol_indexes);
+}
 
 }  // namespace OpenOrienteering

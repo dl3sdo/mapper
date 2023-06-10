@@ -1,6 +1,6 @@
 /*
  *    Copyright 2012, 2013 Thomas Schöps
- *    Copyright 2014 Kai Pastor
+ *    Copyright 2014, 2023 Kai Pastor
  *
  *    This file is part of OpenOrienteering.
  *
@@ -90,6 +90,11 @@ public:
 	 */
 	void selectSingleSymbol(const Symbol* symbol);
 	
+	/**
+	 * @brief Selects the symbol exclusively, deselecting all other symbols.
+	 */
+	void selectSingleSymbol(int symbol);
+	
 signals:
 	/**
 	 * @brief The collection of selected symbols changed.
@@ -119,6 +124,10 @@ signals:
 	 * @brief The user triggered deselecting objects with the active symbol.
 	 */
 	void deselectObjectsClicked();
+	
+	/** Relay signal from SymbolRenderWidget to MapEditorController. */
+	void addToSymbolWheelMenu(QVector<int>);
+	//void addToSymbolWheelMenu(std::vector<int>);
 	
 protected:
 	/**

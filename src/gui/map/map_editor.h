@@ -1,6 +1,6 @@
 /*
  *    Copyright 2012, 2013, 2014 Thomas Schöps
- *    Copyright 2013-2021 Kai Pastor
+ *    Copyright 2013-2023 Kai Pastor
  *
  *    This file is part of OpenOrienteering.
  *
@@ -369,6 +369,13 @@ public slots:
 	 * Makes the editor aware of a change of the selected symbols.
 	 */
 	void selectedSymbolsChanged();
+	
+	/** Add selected symbols to symbol wheel menu. */
+	void addToSymbolWheelMenu(QVector<int> indexes);
+	//void addToSymbolWheelMenu(std::vector<int> indexes);
+	
+	/** Select a symbol. */
+	void selectSymbol(int index);
 	
 	/**
 	 * Makes the editor aware of a change of the selected object.

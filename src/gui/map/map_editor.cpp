@@ -1,6 +1,6 @@
 /*
  *    Copyright 2012, 2013 Thomas Schöps
- *    Copyright 2012-2021 Kai Pastor
+ *    Copyright 2012-2023 Kai Pastor
  *
  *    This file is part of OpenOrienteering.
  *
@@ -132,6 +132,7 @@
 #include "gui/widgets/compass_display.h"
 #include "gui/widgets/key_button_bar.h" // IWYU pragma: keep
 #include "gui/widgets/measure_widget.h"
+#include "gui/widgets/symbol_wheel.h"
 #include "gui/widgets/symbol_widget.h"
 #include "gui/widgets/tags_widget.h"
 #include "gui/widgets/template_list_widget.h"
@@ -814,6 +815,8 @@ void MapEditorController::attach(MainWindow* window)
 	connect(QApplication::clipboard(), &QClipboard::changed, this, &MapEditorController::clipboardChanged);
 	clipboardChanged(QClipboard::Clipboard);
 	
+	connect(map_widget->getSymbolWheelMenu(), &SymbolWheelMenu::selectSymbol, this, &MapEditorController::selectSymbol);
+	
 	if (mode == MapEditor)
 	{
 		// Create/show the dock widgets
@@ -1403,6 +1406,8 @@ void MapEditorController::createMenuAndToolbars()
 	context_menu->addAction(switch_dashes_act);
 	context_menu->addAction(connect_paths_act);
 	context_menu->addAction(copy_coords_act);
+	
+	map_widget->getSymbolWheelMenu()->setMainWindow(window);
 }
 
 void MapEditorController::createMobileGUI()
@@ -2475,6 +2480,21 @@ void MapEditorController::selectedSymbolsChanged()
 	
 	updateSymbolDependentActions();
 	updateSymbolAndObjectDependentActions();
+}
+
+//slot
+void MapEditorController::addToSymbolWheelMenu(QVector<int> indexes)
+//void MapEditorController::addToSymbolWheelMenu(std::vector<int> indexes)
+{
+	if (map_widget)
+		map_widget->getSymbolWheelMenu()->addSymbolsToPieMenu(indexes);
+}
+
+//slot
+void MapEditorController::selectSymbol(int index)
+{
+	if (symbol_widget)
+		symbol_widget->selectSingleSymbol(index);
 }
 
 void MapEditorController::objectSelectionChanged()
@@ -4093,6 +4113,7 @@ void MapEditorController::createSymbolWidget(QWidget* parent)
 		connect(symbol_widget, &SymbolWidget::selectObjectsClicked, this, &MapEditorController::selectObjectsClicked);
 		connect(symbol_widget, &SymbolWidget::deselectObjectsClicked, this, &MapEditorController::deselectObjectsClicked);
 		connect(symbol_widget, &SymbolWidget::selectedSymbolsChanged, this, &MapEditorController::selectedSymbolsChanged);
+		connect(symbol_widget, &SymbolWidget::addToSymbolWheelMenu, this, &MapEditorController::addToSymbolWheelMenu);
 		if (symbol_dock_widget)
 		{
 			Q_ASSERT(!parent);

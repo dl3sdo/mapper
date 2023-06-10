@@ -1,6 +1,6 @@
 /*
  *    Copyright 2012-2014 Thomas Schöps
- *    Copyright 2013-2020 Kai Pastor
+ *    Copyright 2013-2023 Kai Pastor
  *
  *    This file is part of OpenOrienteering.
  *
@@ -64,9 +64,9 @@ class GPSTemporaryMarkers;
 class MapEditorActivity;
 class MapEditorTool;
 class PieMenu;
+class SymbolWheelMenu;
 class Template;
 class TouchCursor;
-
 
 /**
  * QWidget for displaying a map. Needs a pointer to a MapView which defines
@@ -342,6 +342,9 @@ public:
 	 */
 	QVariant inputMethodQuery(Qt::InputMethodQuery property) const override;
 	
+	/** Returns the widget's symbol wheel menu. */
+	SymbolWheelMenu* getSymbolWheelMenu() const;
+	
 public slots:
 	/**
 	 * Support function for input methods.
@@ -534,6 +537,9 @@ private:
 	/** Right-click menu */
 	PieMenu* context_menu;
 	
+	/** Ctrl + Right-click menu */
+	SymbolWheelMenu* symbol_wheel_menu;
+	
 	/** Optional touch cursor for mobile devices */
 	QScopedPointer<TouchCursor> touch_cursor;
 	
@@ -581,6 +587,11 @@ MapWidget::CoordsType MapWidget::getCoordsDisplay() const
 	return coords_type;
 }
 
+inline
+SymbolWheelMenu* MapWidget::getSymbolWheelMenu() const
+{
+	return symbol_wheel_menu;
+}
 
 }  // namespace OpenOrienteering
 

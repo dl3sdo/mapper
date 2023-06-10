@@ -1,6 +1,6 @@
 #
 #    Copyright 2012-2014 Thomas Schöps
-#    Copyright 2012-2018 Kai Pastor
+#    Copyright 2012-2023 Kai Pastor
 #    
 #    This file is part of OpenOrienteering.
 # 
@@ -198,6 +198,7 @@ set(Mapper_Common_SRCS
   gui/widgets/symbol_dropdown.cpp
   gui/widgets/symbol_render_widget.cpp
   gui/widgets/symbol_tooltip.cpp
+  gui/widgets/symbol_wheel.cpp
   gui/widgets/symbol_widget.cpp
   gui/widgets/tag_select_widget.cpp
   gui/widgets/tags_widget.cpp

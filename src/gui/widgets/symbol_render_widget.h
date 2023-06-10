@@ -1,6 +1,6 @@
 /*
  *    Copyright 2012, 2013 Thomas Schöps
- *    Copyright 2014 Kai Pastor
+ *    Copyright 2014, 2023 Kai Pastor
  *
  *    This file is part of OpenOrienteering.
  *
@@ -23,6 +23,7 @@
 #define OPENORIENTEERING_SYMBOL_RENDER_WIDGET_H
 
 #include <set>
+//#include <vector>
 
 #include <QObject>
 #include <QPoint>
@@ -178,6 +179,12 @@ signals:
 	 */
 	void deselectObjectsClicked();
 	
+	/**
+	 * Send selected symbols to symbol wheel menu.
+	 */
+	void addToSymbolWheelMenu(QVector<int>);
+	//void addToSymbolWheelMenu(std::vector<int>);
+	
 protected slots:
 	/**
 	 * @brief Updates icon and selection when a symbol changes.
@@ -216,6 +223,7 @@ protected slots:
 	void sortByColor();
 	void sortByColorPriority();
 	void setCustomIconsVisible(bool checked);
+	void addSymbolsToWheelMenu();
 	
 protected:
 	void resizeEvent(QResizeEvent* event) override;
@@ -363,6 +371,7 @@ private:
 	QAction* deselect_objects_action;
 	QAction* sort_manual_action;
 	QAction* show_custom_icons;
+	QAction* select_wheel_symbols_action;
 	
 	SymbolToolTip* tooltip;
 	

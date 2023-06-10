@@ -1,6 +1,6 @@
 /*
  *    Copyright 2012, 2013 Thomas Schöps
- *    Copyright 2014 Kai Pastor
+ *    Copyright 2014, 2023 Kai Pastor
  *
  *    This file is part of OpenOrienteering.
  *
@@ -50,6 +50,7 @@ SymbolWidget::SymbolWidget(Map* map, bool mobile_mode, QWidget* parent)
 	connect(render_widget, &SymbolRenderWidget::switchSymbolClicked, this, &SymbolWidget::switchSymbolClicked);
 	connect(render_widget, &SymbolRenderWidget::selectObjectsClicked, this, &SymbolWidget::selectObjectsClicked);
 	connect(render_widget, &SymbolRenderWidget::deselectObjectsClicked, this, &SymbolWidget::deselectObjectsClicked);
+	connect(render_widget, &SymbolRenderWidget::addToSymbolWheelMenu, this, &SymbolWidget::addToSymbolWheelMenu);
 }
 
 SymbolWidget::~SymbolWidget()
@@ -80,6 +81,11 @@ bool SymbolWidget::isSymbolSelected(const Symbol* symbol) const
 void SymbolWidget::selectSingleSymbol(const Symbol* symbol)
 {
     render_widget->selectSingleSymbol(symbol);
+}
+
+void SymbolWidget::selectSingleSymbol(int symbol)
+{
+	render_widget->selectSingleSymbol(symbol);
 }
 
 void SymbolWidget::contextMenuEvent(QContextMenuEvent* event)
