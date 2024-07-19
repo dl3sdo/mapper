@@ -23,6 +23,7 @@
 #define OPENORIENTEERING_TEMPLATE_LIST_WIDGET_H
 
 #include <memory>
+#include <vector>
 
 #include <Qt>
 #include <QWidget>
@@ -36,6 +37,7 @@ class QBoxLayout;
 class QCheckBox;
 class QEvent;
 class QModelIndex;
+class QPushButton;
 class QTableView;
 class QToolButton;
 class QVariant;
@@ -114,6 +116,8 @@ protected:
 	 */
 	bool eventFilter(QObject* watched, QEvent* event) override;
 	
+private:
+	void updateTemplateSetButtons();
 	
 // slots:
 #if 0
@@ -142,6 +146,10 @@ protected:
 	
 	void showOpacitySlider(int row);
 	
+	void addTemplateSet();
+	void deleteTemplateSet();
+	void onGroupButtonClicked(int val);
+	
 private:
 	Map& map;
 	MapView& main_view;
@@ -151,6 +159,9 @@ private:
 	
 	Template* last_template = nullptr;
 	int last_row = -1;
+	int max_template_sets;
+	int template_sets;	// TBD
+	int current_template_set;	// TBD
 	
 	QCheckBox* all_hidden_check;
 	QTableView* template_table;
@@ -171,6 +182,10 @@ private:
 	QToolButton* move_by_hand_button;
 	QToolButton* adjust_button;
 	QToolButton* edit_button;
+	
+	QToolButton* new_template_set_button;
+	QToolButton* delete_template_set_button;
+	std::vector<QPushButton*> template_set_buttons;
 	
 	//QToolButton* group_button;
 	//QToolButton* more_button;
