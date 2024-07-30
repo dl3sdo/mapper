@@ -2170,7 +2170,7 @@ void OcdFileImport::fillPathCoords(OcdImportedPathObject *object, bool is_area, 
 		}
 		return ++i;
 	});
-	Q_ASSERT(object->coords.size() >= count);
+	Q_ASSERT(object->coords.size() >= static_cast<std::size_t>(count));
 	object->coords.resize(count);
 	
 	// For path objects, create closed parts where the position of the last point is equal to that of the first point
