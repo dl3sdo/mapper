@@ -1,6 +1,7 @@
 /*
  *    Copyright 2012, 2013 Thomas Schöps
  *    Copyright 2014-2020 Kai Pastor
+ *    Copyright 2024 Matthias Kühlewein
  *
  *    This file is part of OpenOrienteering.
  *
@@ -65,6 +66,22 @@ bool operator==(TemplateVisibility lhs, TemplateVisibility rhs);
 
 bool operator!=(TemplateVisibility lhs, TemplateVisibility rhs);
 
+class TemplateVisibilitySet
+{
+	
+public:
+	//TemplateVisibilitySet();
+	
+	
+	void applyVisibility(int visibility_index);
+	void setVisibility(TemplateVisibility& visibility);
+	void duplicateVisibility();
+	void deleteVisibility();
+	const TemplateVisibility getCurrentVisibility() const;
+	
+	static int current_visibility_index;
+	std::vector<TemplateVisibility> template_visibility_set;
+};
 
 /**
  * Stores view position, zoom, rotation and grid / template visibilities
@@ -322,6 +339,9 @@ public:
 	 */
 	bool hasAlpha() const;
 	
+	void applyVisibilitySet(int new_visibility_set);
+	void addVisibilitySet();
+	void deleteVisibilitySet();
 	
 signals:
 	/**
@@ -379,6 +399,7 @@ private:
 	Q_DISABLE_COPY(MapView)
 	
 	struct TemplateVisibilityEntry : public TemplateVisibility
+	//struct TemplateVisibilityEntry : public TemplateVisibilitySet
 	{
 		const Template* temp;
 		TemplateVisibilityEntry() = default;
@@ -411,8 +432,12 @@ private:
 	QTransform view_to_map;
 	QTransform map_to_view;
 	
-	TemplateVisibility map_visibility;
+	//TemplateVisibility map_visibility;	// TBR
+	TemplateVisibilitySet map_visibility_set;
 	TemplateVisibilityVector template_visibilities;
+	
+	std::vector<TemplateVisibility> map_visibility_sets;
+	//int current_visibility_set;
 	
 	bool all_templates_hidden;
 	bool grid_visible;
@@ -503,7 +528,8 @@ QPoint MapView::panOffset() const
 inline
 TemplateVisibility MapView::getMapVisibility() const
 {
-	return map_visibility;
+	//return map_visibility;
+	return map_visibility_set.getCurrentVisibility();
 }
 
 inline

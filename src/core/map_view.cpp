@@ -1,6 +1,7 @@
 /*
  *    Copyright 2012, 2013 Thomas Schöps
  *    Copyright 2014-2020 Kai Pastor
+ *    Copyright 2024 Matthias Kühlewein
  *
  *    This file is part of OpenOrienteering.
  *
@@ -45,7 +46,7 @@
 namespace literal
 {
 	static const QLatin1String zoom("zoom");
-	static const QLatin1String rotation("rotation");
+	//static const QLatin1String rotation("rotation");
 	static const QLatin1String position_x("position_x");
 	static const QLatin1String position_y("position_y");
 	static const QLatin1String grid("grid");
@@ -76,19 +77,23 @@ bool TemplateVisibility::hasAlpha() const
 const double MapView::zoom_in_limit = 512;
 const double MapView::zoom_out_limit = 1 / 16.0;
 
-
 MapView::MapView(QObject* parent, Map* map)
 : QObject  { parent }
 , map      { map }
 , zoom     { 1.0 }
 , rotation { 0.0 }
-, map_visibility{ 1.0f, true }
+//, map_visibility{ 1.0f, true }
+//, current_visibility_set{0}
 , all_templates_hidden{ false }
 , grid_visible{ false }
 , overprinting_simulation_enabled{ false }
 {
 	Q_ASSERT(map);
 	updateTransform();
+	TemplateVisibility temp {1.0f, true};
+	//temp.opacity = 1.0f;
+	//temp.visible = true;
+	map_visibility_set.setVisibility(temp);
 	connect(map, &Map::templateAboutToBeAdded, this, &MapView::onAboutToAddTemplate);
 	connect(map, &Map::templateAdded, this, &MapView::onTemplateAdded);
 	connect(map, &Map::templateDeleted, this, &MapView::onTemplateDeleted, Qt::QueuedConnection);
@@ -116,11 +121,12 @@ void MapView::save(QXmlStreamWriter& xml, const QLatin1String& element_name, boo
 	mapview_element.writeAttribute(literal::position_y, center_pos.nativeY());
 	mapview_element.writeAttribute(literal::grid, grid_visible);
 	mapview_element.writeAttribute(literal::overprinting_simulation_enabled, overprinting_simulation_enabled);
-	
 	{
 		XmlElementWriter map_element(xml, literal::map);
-		map_element.writeAttribute(literal::opacity, map_visibility.opacity);
-		map_element.writeAttribute(literal::visible, map_visibility.visible);
+		//map_element.writeAttribute(literal::opacity, map_visibility.opacity);
+		map_element.writeAttribute(literal::opacity, map_visibility_set.getCurrentVisibility().opacity);
+		//map_element.writeAttribute(literal::visible, map_visibility.visible);
+		map_element.writeAttribute(literal::visible, map_visibility_set.getCurrentVisibility().visible);
 	}
 	
 	{
@@ -175,11 +181,13 @@ void MapView::load(QXmlStreamReader& xml)
 		if (xml.name() == literal::map)
 		{
 			XmlElementReader map_element(xml);
+			TemplateVisibility map_visibility;
 			map_visibility.opacity = map_element.attribute<qreal>(literal::opacity);
 			if (map_element.hasAttribute(literal::visible))
 				map_visibility.visible = map_element.attribute<bool>(literal::visible);
 			else
 				map_visibility.visible = true;
+			map_visibility_set.setVisibility(map_visibility);
 		}
 		else if (xml.name() == literal::templates)
 		{
@@ -364,17 +372,21 @@ TemplateVisibility MapView::effectiveMapVisibility() const
 {
 	if (all_templates_hidden)
 		return { 1.0f, true };
-	else if (map_visibility.opacity < 0.005)
+	//else if (map_visibility.opacity < 0.005)
+	else if (map_visibility_set.getCurrentVisibility().opacity < 0.005)
 		return { 0.0f, false };
 	else
-		return map_visibility;
+		//return map_visibility;
+		return map_visibility_set.getCurrentVisibility();
 }
 
 void MapView::setMapVisibility(TemplateVisibility vis)
 {
-	if (map_visibility != vis)
+	//if (map_visibility != vis)
+	if (map_visibility_set.getCurrentVisibility() != vis)
 	{
-		map_visibility = vis;
+		//map_visibility = vis;
+		map_visibility_set.setVisibility(vis);
 		emit visibilityChanged(VisibilityFeature::MapVisible, vis.visible && vis.opacity > 0, nullptr);
 	}
 }
@@ -503,5 +515,72 @@ bool MapView::hasAlpha() const
 	return false;
 }
 
+void MapView::applyVisibilitySet(int new_visibility_set)
+{
+	//if (new_visibility_set != current_visibility_set)
+	//{
+		//current_visibility_set = new_visibility_set;
+		// TODO: Rueckmeldung bezgl. Sichtbarkeit
+		map_visibility_set.applyVisibility(new_visibility_set);
+		emit visibilityChanged(VisibilityFeature::MapVisible, true, nullptr);
+		//map_visibility = map_visibility_sets.at(current_visibility_set);
+	//}
+}
+
+void MapView::addVisibilitySet()
+{
+	map_visibility_set.duplicateVisibility();
+}
+
+void MapView::deleteVisibilitySet()
+{
+	map_visibility_set.deleteVisibility();
+	emit visibilityChanged(VisibilityFeature::MapVisible, true, nullptr);
+}
+
+// ### TemplateVisibilitySet ###
+
+int TemplateVisibilitySet::current_visibility_index = 0;
+
+/*TemplateVisibilitySet::TemplateVisibilitySet()
+{
+	
+}*/
+
+void TemplateVisibilitySet::applyVisibility(int visibility_index)
+{
+	if (visibility_index != current_visibility_index)
+	{
+		current_visibility_index = visibility_index;
+		//map_visibility = map_visibility_sets.at(current_visibility_set);
+	}
+}
+
+void TemplateVisibilitySet::setVisibility(TemplateVisibility& visibility)
+{
+	if (template_visibility_set.size())
+		template_visibility_set.at(current_visibility_index) = visibility;
+	else
+		template_visibility_set.push_back(visibility);	// at initialization
+}
+
+void TemplateVisibilitySet::duplicateVisibility()
+{
+	template_visibility_set.insert(template_visibility_set.begin() + current_visibility_index + 1, getCurrentVisibility());
+}
+
+void TemplateVisibilitySet::deleteVisibility()
+{
+	Q_ASSERT(template_visibility_set.size() > 1);
+	
+	template_visibility_set.erase(template_visibility_set.begin() + current_visibility_index);
+	if (current_visibility_index >= template_visibility_set.size())
+		--current_visibility_index;
+}
+
+const TemplateVisibility TemplateVisibilitySet::getCurrentVisibility() const
+{
+	return template_visibility_set.at(current_visibility_index);
+}
 
 }  // namespace OpenOrienteering

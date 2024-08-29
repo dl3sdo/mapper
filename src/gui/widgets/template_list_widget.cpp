@@ -147,7 +147,7 @@ TemplateListWidget::TemplateListWidget(Map& map, MapView& main_view, MapEditorCo
 , main_view(main_view)
 , controller(controller)
 , mobile_mode(controller.isInMobileMode())
-, max_template_sets(3)
+, max_template_sets(9)
 {
 	setWhatsThis(Util::makeWhatThis("templates.html#setup"));
 	
@@ -349,6 +349,11 @@ TemplateListWidget::TemplateListWidget(Map& map, MapView& main_view, MapEditorCo
 	{
 		//auto* template_set_button = new QPushButton(tr("Set%1").arg(i+1));
 		auto* template_set_button = new QPushButton(tr("%1").arg(i+1));
+		const auto textSize = template_set_button->fontMetrics().size(Qt::TextShowMnemonic, template_set_button->text());
+		QStyleOptionButton opt;
+		opt.initFrom(template_set_button);
+		opt.rect.setSize(textSize);
+		template_set_button->setMinimumSize(template_set_button->style()->sizeFromContents(QStyle::CT_PushButton, &opt, textSize, template_set_button));
 		template_set_buttons.push_back(template_set_button);
 		group->addButton(template_set_button, i);
 		template_set_layout->addWidget(template_set_button);
@@ -752,6 +757,7 @@ void TemplateListWidget::addTemplateSet()
 {
 	++template_sets;
 	updateTemplateSetButtons();
+	main_view.addVisibilitySet();
 }
 
 void TemplateListWidget::deleteTemplateSet()
@@ -759,13 +765,19 @@ void TemplateListWidget::deleteTemplateSet()
 	--template_sets;
 	if (current_template_set >= template_sets)
 		current_template_set = template_sets - 1;
+	main_view.deleteVisibilitySet();
 	updateTemplateSetButtons();
 }
 
 void TemplateListWidget::onGroupButtonClicked(int val)
 {
-	current_template_set = val;
-	updateTemplateSetButtons();
+	if (current_template_set != val)
+	{
+		current_template_set = val;
+		main_view.applyVisibilitySet(val);
+		updateTemplateSetButtons();
+		template_table->viewport()->update();
+	}
 }
 
 void TemplateListWidget::openTemplate()
