@@ -193,7 +193,7 @@ void TagSelectWidget::onCellChanged(int row, int column)
 			item->setText(item->text().trimmed());
 		break;
 	default:
-		; // nothing
+		resizeColumnsToContents();
 	}
 }
 
