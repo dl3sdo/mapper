@@ -1,6 +1,6 @@
 /*
  *    Copyright 2016 Mitchell Krome
- *    Copyright 2017-2019 Kai Pastor
+ *    Copyright 2017-2019, 2025 Kai Pastor
  *
  *    This file is part of OpenOrienteering.
  *
@@ -76,12 +76,12 @@ TagSelectWidget::TagSelectWidget(QWidget* parent)
 	
 	auto* header_view = horizontalHeader();
 	header_view->setSectionsClickable(false);
-	header_view->setSectionResizeMode(0, QHeaderView::Fixed);
+	header_view->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 	header_view->setSectionResizeMode(1, QHeaderView::Stretch);
-	header_view->setSectionResizeMode(2, QHeaderView::Fixed);
+	header_view->setSectionResizeMode(2, QHeaderView::ResizeToContents);
 	header_view->setSectionResizeMode(3, QHeaderView::Stretch);
 	header_view->resizeSections(QHeaderView::ResizeToContents);
-	setMinimumWidth(10
+	setMinimumWidth(100
 	                + header_view->sectionSize(0)
 	                + header_view->sectionSize(1)
 	                + header_view->sectionSize(2)
