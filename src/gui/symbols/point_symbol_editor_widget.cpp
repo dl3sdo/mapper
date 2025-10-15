@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <numeric>
 // IWYU pragma: no_include <memory>
 // IWYU pragma: no_include <vector>
 
@@ -80,8 +81,8 @@
 
 namespace OpenOrienteering {
 
-PointSymbolEditorWidget::PointSymbolEditorWidget(MapEditorController* controller, PointSymbol* symbol, Map* source_map, SymbolRole role, qreal offset_y, QWidget* parent)
-: QWidget(parent)
+PointSymbolEditorWidget::PointSymbolEditorWidget(MapEditorController* controller, PointSymbol* symbol, SymbolRole role, qreal offset_y, Map* source_map)
+: QWidget(nullptr)
 , symbol(symbol)
 , object_origin_coord(0, offset_y)
 , offset_y(offset_y)
@@ -1076,6 +1077,8 @@ void PointSymbolEditorWidget::importPointObject(const Object* object, MapCoordF&
 {
 	const auto point_symbol = object->getSymbol()->asPoint();
 	const auto point_object = object->asPoint();
+	const MapCoordF distance_to_center = point_object->getCoordF() - selection_center;
+	
 	if (point_symbol->getInnerColor() || point_symbol->getOuterColor())
 	{
 		auto* new_symbol = new PointSymbol();
@@ -1084,8 +1087,7 @@ void PointSymbolEditorWidget::importPointObject(const Object* object, MapCoordF&
 		new_symbol->setOuterColor(point_symbol->getOuterColor());
 		new_symbol->setOuterWidth(point_symbol->getOuterWidth());
 		auto* new_object = new PointObject(new_symbol);
-		const MapCoordF new_coords = point_object->getCoordF() - selection_center;
-		new_object->setPosition(new_coords);
+		new_object->setPosition(distance_to_center);
 		addNewSymbol(new_object, new_symbol);
 	}
 	for (int i = 0; i < point_symbol->getNumElements(); ++i)
@@ -1098,7 +1100,6 @@ void PointSymbolEditorWidget::importPointObject(const Object* object, MapCoordF&
 			{
 			auto* new_symbol = element_symbol->asPoint()->duplicate();
 			auto* new_object = element_object->asPoint()->duplicate();
-			const MapCoordF distance_to_center = point_object->getCoordF() - selection_center;
 			new_object->move(MapCoord(distance_to_center));
 			addNewSymbol(new_object, new_symbol);
 			}
@@ -1107,7 +1108,6 @@ void PointSymbolEditorWidget::importPointObject(const Object* object, MapCoordF&
 			{
 			auto* new_symbol = element_symbol->asArea()->duplicate();
 			auto* new_object = element_object->asPath()->duplicate();
-			const MapCoordF distance_to_center = point_object->getCoordF() - selection_center;
 			new_object->move(MapCoord(distance_to_center));
 			addNewSymbol(new_object, new_symbol);
 			}
@@ -1116,7 +1116,6 @@ void PointSymbolEditorWidget::importPointObject(const Object* object, MapCoordF&
 			{
 			auto* new_symbol = element_symbol->asLine()->duplicate();
 			auto* new_object = element_object->asPath()->duplicate();
-			const MapCoordF distance_to_center = point_object->getCoordF() - selection_center;
 			new_object->move(MapCoord(distance_to_center));
 			addNewSymbol(new_object, new_symbol);
 			}
@@ -1130,6 +1129,7 @@ void PointSymbolEditorWidget::importPointObject(const Object* object, MapCoordF&
 void PointSymbolEditorWidget::importAreaObject(const Object* object, MapCoordF& selection_center)
 {
 	auto* new_symbol = object->getSymbol()->asArea()->duplicate();
+	//new_symbol->setRotatable(false);	// always set rotability of subsymbols in a point symbol to default?
 	auto* new_object = object->asPath()->duplicate();
 	new_object->move(MapCoord(-selection_center));
 	addNewSymbol(new_object, new_symbol);
