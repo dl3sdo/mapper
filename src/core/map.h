@@ -1,6 +1,6 @@
 /*
  *    Copyright 2012-2014 Thomas Schöps
- *    Copyright 2013-2020, 2024 Kai Pastor
+ *    Copyright 2013-2020, 2024, 2026 Kai Pastor
  *
  *    This file is part of OpenOrienteering.
  *
@@ -45,6 +45,7 @@
 #include "core/map_coord.h"
 #include "core/map_grid.h"
 #include "core/map_part.h"
+#include "gui/map/import_map_dialog_p.h"
 // IWYU pragma: no_include "templates/template.h"
 
 class QIODevice;
@@ -187,7 +188,8 @@ public:
 	        ImportMode mode,
 	        std::vector<bool>* filter = nullptr,
 	        int symbol_insert_pos = -1,
-	        bool merge_duplicate_symbols = true
+	        bool merge_duplicate_symbols = true,
+	        std::unique_ptr<PartConfigList> import_config = nullptr
 	);
 	
 	/**
@@ -219,7 +221,8 @@ public:
 	        const QTransform& transform,
 	        std::vector<bool>* filter = nullptr,
 	        int symbol_insert_pos = -1,
-	        bool merge_duplicate_symbols = true
+	        bool merge_duplicate_symbols = true,
+	        std::unique_ptr<PartConfigList> import_config = nullptr
 	);
 	
 	
@@ -589,7 +592,7 @@ public:
 	 * is set to true if there is at least one object which uses this symbol or
 	 * a derived (combined) symbol.
 	 */
-	void determineSymbolsInUse(std::vector<bool>& out) const;
+	void determineSymbolsInUse(std::vector<bool>& out, const std::vector<bool>* import_parts = nullptr) const;
 	
 	/**
 	 * Adds to the given symbol bitfield all other symbols which are needed to
