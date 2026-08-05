@@ -20,7 +20,7 @@
 #ifndef OPENORIENTEERING_IMPORT_MAP_DIALOG_H
 #define OPENORIENTEERING_IMPORT_MAP_DIALOG_H
 
-#include "import_map_dialog_p.h"
+#include <vector>
 
 #include <QDialog>
 #include <QObject>
@@ -39,6 +39,21 @@ class QWidget;
 namespace OpenOrienteering {
 
 class Map;
+
+/**
+ * Configuration for one part
+ */
+struct PartConfigItem {
+	QString name;				// part name in import map
+	QString target_name;		// part name in destination map
+	bool import;				// import?
+	int num_objects;
+	bool import_selected;
+	bool import_equal_objects;
+	QString compare_map_part;
+	QString object_tag_key;
+	QString object_tag_value;
+};
 
 
 /**
@@ -59,7 +74,7 @@ public:
 	
 	~ImportMapDialog() override;
 	
-	PartConfigList getImportConfig() const { return part_config; }
+	std::vector<PartConfigItem> getImportConfig() const { return part_config; }
 	bool isNothingToImport() const;
 	
 private slots:
@@ -102,7 +117,7 @@ private:
 	
 	Map* map;
 	Map* other;
-	PartConfigList part_config;
+	std::vector<PartConfigItem> part_config;
 	int part_config_index;
 	QStringList additional_map_parts;
 };

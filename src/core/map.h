@@ -45,7 +45,6 @@
 #include "core/map_coord.h"
 #include "core/map_grid.h"
 #include "core/map_part.h"
-#include "gui/map/import_map_dialog_p.h"
 // IWYU pragma: no_include "templates/template.h"
 
 class QIODevice;
@@ -189,7 +188,7 @@ public:
 	        std::vector<bool>* filter = nullptr,
 	        int symbol_insert_pos = -1,
 	        bool merge_duplicate_symbols = true,
-	        std::unique_ptr<PartConfigList> import_config = nullptr
+	        std::vector<PartConfigItem>* import_config = nullptr
 	);
 	
 	/**
@@ -222,7 +221,7 @@ public:
 	        std::vector<bool>* filter = nullptr,
 	        int symbol_insert_pos = -1,
 	        bool merge_duplicate_symbols = true,
-	        std::unique_ptr<PartConfigList> import_config = nullptr
+	        std::vector<PartConfigItem>* import_config = nullptr
 	);
 	
 	

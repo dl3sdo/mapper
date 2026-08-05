@@ -35,7 +35,7 @@
 #include "core/map_coord.h"
 #include "core/objects/object.h"
 #include "core/symbols/symbol.h"
-#include "gui/map/import_map_dialog_p.h"
+#include "gui/map/import_map_dialog.h"
 #include "undo/object_undo.h"
 #include "util/util.h"
 #include "util/xml_stream_util.h"

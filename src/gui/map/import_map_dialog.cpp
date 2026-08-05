@@ -53,7 +53,7 @@ ImportMapDialog::ImportMapDialog(QWidget* parent, Map* map, Map* other)
 {
 	setWindowTitle(tr("Import map"));
 	
-	QDialogButtonBox* button_box = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal);
+	auto* button_box = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal);
 	
 	auto* part_selection_layout = new QHBoxLayout();
 	import_part = new QCheckBox(tr("Import part"));
@@ -310,9 +310,7 @@ void ImportMapDialog::objectComparisonPartChanged(const QString &text)
 
 bool ImportMapDialog::isNothingToImport() const
 {
-	if (std::none_of(begin(part_config), end(part_config), [](const auto& item) {return item.import;}) == true)
-		return true;
-	return false;
+	return std::none_of(begin(part_config), end(part_config), [](const auto& item) {return item.import;});
 }
 
 QString ImportMapDialog::determineTargetName(int part_number) const

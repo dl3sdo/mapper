@@ -61,6 +61,7 @@
 #include "fileformats/file_format_registry.h"
 #include "fileformats/file_import_export.h"
 #include "fileformats/xml_file_format_p.h"
+#include "gui/map/import_map_dialog.h"
 #include "gui/map/map_widget.h"
 #include "templates/template.h"
 #include "undo/map_part_undo.h"
@@ -616,7 +617,7 @@ QHash<const Symbol*, Symbol*> Map::importMap(
         std::vector<bool>* filter,
         int symbol_insert_pos,
         bool merge_duplicate_symbols,
-        std::unique_ptr<PartConfigList> import_config)
+        std::vector<PartConfigItem>* import_config)
 {
 	QTransform q_transform;
 	if (mode.testFlag(GeorefImport))
@@ -645,7 +646,7 @@ QHash<const Symbol*, Symbol*> Map::importMap(
 		}
 	}
 	
-	return importMap(imported_map, mode & ~GeorefImport, q_transform, filter, symbol_insert_pos, merge_duplicate_symbols, std::move(import_config));
+	return importMap(imported_map, mode & ~GeorefImport, q_transform, filter, symbol_insert_pos, merge_duplicate_symbols, import_config);
 }
 
 
@@ -663,7 +664,7 @@ QHash<const Symbol*, Symbol*> Map::importMap(
         std::vector<bool>* filter,
         int symbol_insert_pos,
         bool merge_duplicate_symbols,
-        std::unique_ptr<PartConfigList> import_config)
+        std::vector<PartConfigItem>* import_config)
 {
 	if (imported_map.getScaleDenominator() != getScaleDenominator())
 		qWarning("Map::importMap() called for different map scale");

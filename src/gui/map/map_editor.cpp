@@ -4333,9 +4333,7 @@ QHash<const Symbol*, Symbol*> MapEditorController::importMap(
 		QMessageBox::information(dialog_parent, tr("Information"), tr("Nothing to import."));
 		return {};
 	}
-	
-	//ImportMapDialog::PartConfigList import_config = dialog.getImportConfig();
-	auto import_config = std::make_unique<PartConfigList>(dialog.getImportConfig());
+	auto import_config = dialog.getImportConfig();
 	
 	// Check scale
 	if ((mode & 0x0f) != Map::ColorImport
@@ -4358,7 +4356,7 @@ QHash<const Symbol*, Symbol*> MapEditorController::importMap(
 		}
 	}
 	
-	return map->importMap(other, mode, filter, symbol_insert_pos, merge_duplicate_symbols, std::move(import_config));
+	return map->importMap(other, mode, filter, symbol_insert_pos, merge_duplicate_symbols, &import_config);
 }
 
 
