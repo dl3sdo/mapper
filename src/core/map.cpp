@@ -617,7 +617,7 @@ QHash<const Symbol*, Symbol*> Map::importMap(
         std::vector<bool>* filter,
         int symbol_insert_pos,
         bool merge_duplicate_symbols,
-        std::vector<PartConfigItem>* import_config)
+        const std::vector<PartConfigItem>* import_config)
 {
 	QTransform q_transform;
 	if (mode.testFlag(GeorefImport))
@@ -664,7 +664,7 @@ QHash<const Symbol*, Symbol*> Map::importMap(
         std::vector<bool>* filter,
         int symbol_insert_pos,
         bool merge_duplicate_symbols,
-        std::vector<PartConfigItem>* import_config)
+        const std::vector<PartConfigItem>* import_config)
 {
 	if (imported_map.getScaleDenominator() != getScaleDenominator())
 		qWarning("Map::importMap() called for different map scale");
@@ -681,17 +681,7 @@ QHash<const Symbol*, Symbol*> Map::importMap(
 		{
 		case ObjectImport:
 			if (imported_map.getNumObjects() > 0)
-			{
-				if (import_config)
-				{
-					std::vector<bool> import_parts(import_config->size());
-					for (size_t i = 0; i < import_config->size(); ++i)
-						import_parts[i] = import_config->at(i).import;
-					imported_map.determineSymbolsInUse(symbol_filter, &import_parts);
-				}
-				else
-					imported_map.determineSymbolsInUse(symbol_filter);
-			}
+				imported_map.determineSymbolsInUse(symbol_filter, import_config);
 			imported_map.determineColorsInUse(symbol_filter, color_filter);
 			break;
 		case SymbolImport:
@@ -1745,13 +1735,13 @@ void Map::scaleAllSymbols(double factor)
 	setSymbolsDirty();
 }
 
-void Map::determineSymbolsInUse(std::vector< bool >& out, const std::vector<bool>* import_parts) const
+void Map::determineSymbolsInUse(std::vector< bool >& out, const std::vector<PartConfigItem>* import_config) const
 {
 	out.assign(symbols.size(), false);
 	int part_count = 0;
 	for (auto part : parts)
 	{
-		if (import_parts && !import_parts->at(part_count++))
+		if (import_config && !import_config->at(part_count++).import)
 			continue;
 		for (int o = 0; o < part->getNumObjects(); ++o)
 		{

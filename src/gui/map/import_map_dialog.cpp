@@ -152,8 +152,7 @@ ImportMapDialog::~ImportMapDialog() = default;
 
 void ImportMapDialog::setupPartConfig(const Map* other)
 {
-	const auto num_parts = other->getNumParts();
-	for (int i = 0; i < num_parts; ++i)
+	for (int i = 0; i < other->getNumParts(); ++i)
 	{
 		const auto part = other->getPart(i);
 		PartConfigItem configItem;

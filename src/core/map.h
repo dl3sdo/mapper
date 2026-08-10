@@ -188,7 +188,7 @@ public:
 	        std::vector<bool>* filter = nullptr,
 	        int symbol_insert_pos = -1,
 	        bool merge_duplicate_symbols = true,
-	        std::vector<PartConfigItem>* import_config = nullptr
+	        const std::vector<PartConfigItem>* import_config = nullptr
 	);
 	
 	/**
@@ -221,7 +221,7 @@ public:
 	        std::vector<bool>* filter = nullptr,
 	        int symbol_insert_pos = -1,
 	        bool merge_duplicate_symbols = true,
-	        std::vector<PartConfigItem>* import_config = nullptr
+	        const std::vector<PartConfigItem>* import_config = nullptr
 	);
 	
 	
@@ -591,7 +591,7 @@ public:
 	 * is set to true if there is at least one object which uses this symbol or
 	 * a derived (combined) symbol.
 	 */
-	void determineSymbolsInUse(std::vector<bool>& out, const std::vector<bool>* import_parts = nullptr) const;
+	void determineSymbolsInUse(std::vector<bool>& out, const std::vector<PartConfigItem>* import_config = nullptr) const;
 	
 	/**
 	 * Adds to the given symbol bitfield all other symbols which are needed to
