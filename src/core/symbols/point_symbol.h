@@ -43,6 +43,7 @@ class MapColor;
 class MapColorMap;
 class MapCoordF;
 class ObjectRenderables;
+class PointObject;
 class SymbolPropertiesWidget;
 class SymbolSettingDialog;
 class VirtualCoordVector;
@@ -81,7 +82,7 @@ public:
 	        ObjectRenderables &output,
 	        RenderableOptions options ) const override;
 	
-	void createRenderablesScaled(const MapCoordF& coord, qreal rotation, ObjectRenderables& output, qreal coord_scale = 1) const;
+	void createRenderablesScaled(const MapCoordF& coord, qreal rotation, ObjectRenderables& output, qreal coord_scale = 1, const PointObject* point = nullptr) const;
 	
 	void createRenderablesIfCenterInside(const MapCoordF& point_coord, qreal rotation, const QPainterPath* outline, ObjectRenderables& output) const;
 	void createPrimitivesIfCompletelyInside(const MapCoordF& point_coord, const QPainterPath* outline, ObjectRenderables& output) const;

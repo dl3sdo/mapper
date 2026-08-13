@@ -304,6 +304,8 @@ protected:
 	
 	QByteArray exportTextData(const TextObject* object, int chunk_size, int max_chunks);
 	
+	void exportArcs(const PointObject* object, QByteArray& byte_array);
+	
 	
 	void addTextTruncationWarning(QString text, int pos);
 	

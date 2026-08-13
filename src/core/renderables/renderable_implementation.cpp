@@ -145,6 +145,38 @@ void CircleRenderable::render(QPainter &painter, const RenderConfig &config) con
 
 
 
+// ### ArcRenderable ###
+
+ArcRenderable::ArcRenderable(const PointSymbol* symbol, MapCoordF coord, const std::vector<std::pair<int, int>>* arcs)
+ : Renderable(symbol->getOuterColor())
+ , line_width(0.001 * symbol->getOuterWidth())
+ , arcs(*arcs)
+{
+	double x = coord.x();
+	double y = coord.y();
+	double radius = (0.001 * symbol->getInnerRadius()) + line_width/2;
+	rect = QRectF(x - radius, y - radius, 2 * radius, 2 * radius);
+	extent = QRectF(rect.x() - 0.5*line_width, rect.y() - 0.5*line_width, rect.width() + line_width, rect.height() + line_width);
+}
+
+PainterConfig ArcRenderable::getPainterConfig(const QPainterPath* clip_path) const
+{
+	return { color_priority, PainterConfig::PenOnly, line_width, clip_path };
+}
+
+void ArcRenderable::render(QPainter &painter, const RenderConfig &config) const
+{
+	if (config.options.testFlag(RenderConfig::ForceMinSize) && rect.width() * config.scaling < 1.5)
+		painter.drawEllipse(rect.center(), 0.5 / config.scaling, 0.5 / config.scaling);
+	else
+	{
+		for (const auto &arc : arcs)
+			painter.drawArc(rect, arc.first / 10, arc.second / 10);
+	}
+}
+
+
+
 // ### LineRenderable ###
 
 LineRenderable::LineRenderable(const LineSymbol* symbol, const VirtualPath& virtual_path, bool closed)

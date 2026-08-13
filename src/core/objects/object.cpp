@@ -76,6 +76,10 @@ namespace literal
 	static const QLatin1String rotation("rotation");
 	static const QLatin1String size("size");
 	static const QLatin1String tags("tags");
+	static const QLatin1String arcs("arcs");
+	static const QLatin1String arc("arc");
+	static const QLatin1String angle("angle");
+	static const QLatin1String span("span");
 }
 
 
@@ -302,6 +306,21 @@ void Object::save(QXmlStreamWriter& xml) const
 		}
 		xml.writeTextElement(literal::text, text->getText());
 	}
+	else if (type == Point)
+	{
+		auto const* point = static_cast<PointObject const*>(this);
+		if (point->getNumArcs())
+		{
+			XmlElementWriter arcs_element(xml, literal::arcs);
+			for (int i = 0; i < point->getNumArcs(); ++i)
+			{
+				auto arc = point->getArc(i);
+				XmlElementWriter arc_element(xml, literal::arc);
+				arc_element.writeAttribute(literal::angle, arc.first);
+				arc_element.writeAttribute(literal::span, arc.second);
+			}
+		}
+	}
 }
 
 Object* Object::load(QXmlStreamReader& xml, Map* map, const SymbolDictionary& symbol_dict, const Symbol* symbol)
@@ -437,6 +456,24 @@ Object* Object::load(QXmlStreamReader& xml, Map* map, const SymbolDictionary& sy
 		else if (xml.name() == literal::tags)
 		{
 			XmlElementReader(xml).read(object->object_tags);
+		}
+		else if (xml.name() == literal::arcs && object_type == Point)
+		{
+			auto* point = object->asPoint();
+			XmlElementReader arcs_element(xml);
+			
+			while (xml.readNextStartElement())
+			{
+				if (xml.name() == literal::arc)
+				{
+					XmlElementReader arc_element(xml);
+					auto angle = arc_element.attribute<int>(literal::angle);
+					auto span = arc_element.attribute<int>(literal::span);
+					point->addArc(std::pair<int, int>(angle, span));
+				}
+				else
+					xml.skipCurrentElement(); // unknown
+			}
 		}
 		else
 			xml.skipCurrentElement(); // unknown
@@ -3245,6 +3282,7 @@ void PointObject::copyFrom(const Object& other)
 	const PointObject* point_other = other.asPoint();
 	if (getSymbol() && getSymbol()->isRotatable())
 		setRotation(point_other->getRotation());
+	// TODO cut_angles
 }
 
 

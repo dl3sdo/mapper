@@ -2649,6 +2649,9 @@ QByteArray OcdFileExport::exportObjectCommon(const Object* object, OcdObject& oc
 	QByteArray text_data;
 	switch(ocd_object.type)
 	{
+	case 1:
+		ocd_object.num_items = decltype(ocd_object.num_items)(coords.size() + object->asPoint()->getNumArcs());
+		break;
 	case 4:
 		ocd_object.num_items = (static_cast<const TextObject*>(object)->getNumLines() == 0) ? 0 : 5;
 		if (ocd_object.num_items > 0)
@@ -2695,6 +2698,10 @@ QByteArray OcdFileExport::exportObjectCommon(const Object* object, OcdObject& oc
 		default:
 			exportCoordinates(coords, object->getSymbol(), data, bottom_left, top_right);
 		}
+		if (ocd_object.type == 1 && ocd_object.num_items > 1)
+		{
+			exportArcs(object->asPoint(), data);
+		}
 	}
 	FILEFORMAT_ASSERT(data.size() == header_size + items_size);
 	
@@ -2719,6 +2726,24 @@ QByteArray OcdFileExport::exportObjectCommon(const Object* object, OcdObject& oc
 	return data;
 }
 
+
+void OcdFileExport::exportArcs(const PointObject* object, QByteArray& byte_array)
+{
+	auto arcs = *(object->getArcs());
+	if (arcs.size() > 1)
+		std::sort(begin(arcs), end(arcs),[](std::pair<int, int> a, std::pair<int, int> b) { return a.first < b.first; });
+	for (int i = 0; i < (int)arcs.size(); ++i)
+	{
+		auto start = (arcs.at(i).first + arcs.at(i).second) / 16;
+		auto end = (arcs.at(i+1 < (int)arcs.size() ? i+1 : 0).first) / 16;
+		if (start > 1800)
+			start -= 3600;
+		if (end > 1800)
+			end -= 3600;
+		byte_array.append(reinterpret_cast<const char*>(&start), sizeof(start));
+		byte_array.append(reinterpret_cast<const char*>(&end), sizeof(end));
+	}
+}
 
 
 template<class Format>

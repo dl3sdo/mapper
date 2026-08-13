@@ -127,16 +127,21 @@ void PointSymbol::createRenderables(
 	}
 	else
 	{
-		createRenderablesScaled(coords[0], rotation, output);
+		createRenderablesScaled(coords[0], rotation, output, 1, point);
 	}
 }
 
-void PointSymbol::createRenderablesScaled(const MapCoordF& coord, qreal rotation, ObjectRenderables& output, qreal coord_scale) const
+void PointSymbol::createRenderablesScaled(const MapCoordF& coord, qreal rotation, ObjectRenderables& output, qreal coord_scale, const PointObject* point) const
 {
 	if (inner_color && inner_radius > 0)
 		output.insertRenderable(new DotRenderable(this, coord));
 	if (outer_color && outer_width > 0)
-		output.insertRenderable(new CircleRenderable(this, coord));
+	{
+		if (point && point->getNumArcs())
+			output.insertRenderable(new ArcRenderable(this, coord, point->getArcs()));
+		else
+			output.insertRenderable(new CircleRenderable(this, coord));
+	}
 	
 	if (!elements.empty())
 	{
@@ -170,6 +175,20 @@ void PointSymbol::createRenderablesScaled(const MapCoordF& coord, qreal rotation
 			
 			// TODO: if this point is rotated, it has to pass it on to its children to make it work that rotatable point objects can be children.
 			// But currently only basic, rotationally symmetric points can be children, so it does not matter for now.
+			if (element.symbol->getType() == Symbol::Point && point && point->getNumArcs())
+			{
+				const auto* point_symbol = element.symbol->asPoint();
+				if (point_symbol->getOuterColor() && point_symbol->getOuterWidth() > 0)
+				{
+					auto sub_object = std::unique_ptr<PointObject>(element.object.get()->asPoint()->duplicate());
+					//for (int i = 0; i < point->getNumArcs(); ++i)
+					//	sub_object->addArc(point->getArc(i));
+					sub_object->setArcs(point->getArcs());
+					
+					element.symbol->createRenderables(sub_object.get(), VirtualCoordVector(object_coords, transformed_coords), output, Symbol::RenderNormal);
+					continue;
+				}
+			}
 			element.symbol->createRenderables(element.object.get(), VirtualCoordVector(object_coords, transformed_coords), output, Symbol::RenderNormal);
 		}
 	}

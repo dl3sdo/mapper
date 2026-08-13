@@ -1091,6 +1091,17 @@ public:
 	
 	
 	bool intersectsBox(const QRectF& box) const override;
+	
+	
+	const std::vector<std::pair<int, int>>* getArcs() const { return &arcs; };
+	void setArcs(const std::vector<std::pair<int, int>>* arcs) { this->arcs = *arcs; };
+	int getNumArcs() const { return arcs.size(); };
+	const std::pair<int, int> getArc(int index) const { return arcs.at(index); };
+	void addArc(std::pair<int, int> arc) { arcs.emplace_back(arc); };
+	
+private:
+	
+	std::vector<std::pair<int, int>> arcs;
 };
 
 

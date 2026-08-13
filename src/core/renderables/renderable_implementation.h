@@ -22,6 +22,8 @@
 #ifndef OPENORIENTEERING_RENDERABLE_IMPLENTATION_H
 #define OPENORIENTEERING_RENDERABLE_IMPLENTATION_H
 
+#include <utility>
+
 #include <Qt>
 #include <QtGlobal>
 #include <QPainterPath>
@@ -66,6 +68,20 @@ public:
 protected:
 	const qreal line_width;
 	QRectF rect;
+};
+
+/** Renderable for displaying a circle with gaps. */
+class ArcRenderable : public Renderable
+{
+public:
+	ArcRenderable(const PointSymbol* symbol, MapCoordF coord, const std::vector<std::pair<int, int>>* arcs);
+	void render(QPainter& painter, const RenderConfig& config) const override;
+	PainterConfig getPainterConfig(const QPainterPath* clip_path = nullptr) const override;
+	
+protected:
+	const qreal line_width;
+	QRectF rect;
+	std::vector<std::pair<int, int>> arcs;
 };
 
 /** Renderable for displaying a line. */
