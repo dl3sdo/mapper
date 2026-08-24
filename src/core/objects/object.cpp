@@ -1,6 +1,7 @@
 /*
  *    Copyright 2012, 2013 Thomas Schöps
  *    Copyright 2012-2021, 2025 Kai Pastor
+ *    Copyright 2026 Matthias Kühlewein
  *
  *    This file is part of OpenOrienteering.
  *
@@ -3282,7 +3283,7 @@ void PointObject::copyFrom(const Object& other)
 	const PointObject* point_other = other.asPoint();
 	if (getSymbol() && getSymbol()->isRotatable())
 		setRotation(point_other->getRotation());
-	// TODO cut_angles
+	arcs = *(point_other->getArcs());
 }
 
 

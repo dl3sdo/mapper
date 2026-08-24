@@ -1,6 +1,6 @@
 /*
  *    Copyright 2012, 2013 Thomas Schöps
- *    Copyright 2013-2020, 2025 Kai Pastor
+ *    Copyright 2013-2020, 2025, 2026 Kai Pastor
  *
  *    This file is part of OpenOrienteering.
  *
@@ -1094,13 +1094,11 @@ public:
 	
 	
 	const std::vector<std::pair<int, int>>* getArcs() const { return &arcs; };
-	void setArcs(const std::vector<std::pair<int, int>>* arcs) { this->arcs = *arcs; };
 	int getNumArcs() const { return arcs.size(); };
 	const std::pair<int, int> getArc(int index) const { return arcs.at(index); };
 	void addArc(std::pair<int, int> arc) { arcs.emplace_back(arc); };
 	
 private:
-	
 	std::vector<std::pair<int, int>> arcs;
 };
 

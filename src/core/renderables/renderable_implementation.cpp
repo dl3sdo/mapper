@@ -1,6 +1,6 @@
 /*
  *    Copyright 2012, 2013 Thomas Schöps
- *    Copyright 2012-2017 Kai Pastor
+ *    Copyright 2012-2017, 2026 Kai Pastor
  *
  *    This file is part of OpenOrienteering.
  *	
@@ -147,10 +147,11 @@ void CircleRenderable::render(QPainter &painter, const RenderConfig &config) con
 
 // ### ArcRenderable ###
 
-ArcRenderable::ArcRenderable(const PointSymbol* symbol, MapCoordF coord, const std::vector<std::pair<int, int>>* arcs)
+ArcRenderable::ArcRenderable(const PointSymbol* symbol, MapCoordF coord, const std::vector<std::pair<int, int>>* arcs, qreal rotation)
  : Renderable(symbol->getOuterColor())
  , line_width(0.001 * symbol->getOuterWidth())
  , arcs(*arcs)
+ , rotation(int(qRadiansToDegrees(rotation) * 160))
 {
 	double x = coord.x();
 	double y = coord.y();
@@ -171,7 +172,7 @@ void ArcRenderable::render(QPainter &painter, const RenderConfig &config) const
 	else
 	{
 		for (const auto &arc : arcs)
-			painter.drawArc(rect, arc.first / 10, arc.second / 10);
+			painter.drawArc(rect, (rotation + arc.first) / 10, arc.second / 10);
 	}
 }
 

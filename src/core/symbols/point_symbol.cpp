@@ -138,7 +138,7 @@ void PointSymbol::createRenderablesScaled(const MapCoordF& coord, qreal rotation
 	if (outer_color && outer_width > 0)
 	{
 		if (point && point->getNumArcs())
-			output.insertRenderable(new ArcRenderable(this, coord, point->getArcs()));
+			output.insertRenderable(new ArcRenderable(this, coord, point->getArcs(), -rotation));
 		else
 			output.insertRenderable(new CircleRenderable(this, coord));
 	}
@@ -181,9 +181,14 @@ void PointSymbol::createRenderablesScaled(const MapCoordF& coord, qreal rotation
 				if (point_symbol->getOuterColor() && point_symbol->getOuterWidth() > 0)
 				{
 					auto sub_object = std::unique_ptr<PointObject>(element.object.get()->asPoint()->duplicate());
-					//for (int i = 0; i < point->getNumArcs(); ++i)
-					//	sub_object->addArc(point->getArc(i));
-					sub_object->setArcs(point->getArcs());
+					for (int i = 0; i < point->getNumArcs(); ++i)
+					{
+						const auto arc = point->getArc(i);
+						if (!qIsNull(rotation))
+							sub_object->addArc({arc.first + qRadiansToDegrees(-rotation) * 160, arc.second});
+						else
+							sub_object->addArc(arc);
+					}
 					
 					element.symbol->createRenderables(sub_object.get(), VirtualCoordVector(object_coords, transformed_coords), output, Symbol::RenderNormal);
 					continue;

@@ -1,6 +1,7 @@
 /*
  *    Copyright 2013-2022, 2024, 2025 Kai Pastor
- *
+ *    Copyright 2022, 2024-2026 Matthias Kühlewein
+ *    
  *    Some parts taken from file_format_oc*d8{.h,_p.h,cpp} which are
  *    Copyright 2012 Pete Curtis
  *

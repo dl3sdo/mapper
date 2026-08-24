@@ -1,6 +1,6 @@
 /*
  *    Copyright 2012, 2013 Thomas Schöps
- *    Copyright 2012-2017 Kai Pastor
+ *    Copyright 2012-2017, 2026 Kai Pastor
  *
  *    This file is part of OpenOrienteering.
  *
@@ -74,14 +74,15 @@ protected:
 class ArcRenderable : public Renderable
 {
 public:
-	ArcRenderable(const PointSymbol* symbol, MapCoordF coord, const std::vector<std::pair<int, int>>* arcs);
+	ArcRenderable(const PointSymbol* symbol, MapCoordF coord, const std::vector<std::pair<int, int>>* arcs, qreal rotation);
 	void render(QPainter& painter, const RenderConfig& config) const override;
 	PainterConfig getPainterConfig(const QPainterPath* clip_path = nullptr) const override;
 	
 protected:
 	const qreal line_width;
 	QRectF rect;
-	std::vector<std::pair<int, int>> arcs;
+	const std::vector<std::pair<int, int>> arcs;
+	const int rotation;
 };
 
 /** Renderable for displaying a line. */
@@ -163,4 +164,4 @@ const QPainterPath* AreaRenderable::painterPath() const
 
 }  // namespace OpenOrienteering
 
-#endif
+#endif // OPENORIENTEERING_RENDERABLE_IMPLENTATION_H
