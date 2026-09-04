@@ -1,6 +1,6 @@
 /*
  *    Copyright 2012, 2013 Thomas Schöps
- *    Copyright 2012-2021, 2024, 2025 Kai Pastor
+ *    Copyright 2012-2021, 2024-2026 Kai Pastor
  *
  *    This file is part of OpenOrienteering.
  *
@@ -104,6 +104,7 @@
 #include "core/objects/boolean_tool.h"
 #include "core/objects/object.h"
 #include "core/objects/object_operations.h"
+#include "core/symbols/point_symbol.h"
 #include "core/symbols/symbol.h"
 #include "core/symbols/symbol_icon_decorator.h"
 #include "fileformats/file_format.h"
@@ -144,6 +145,7 @@
 #include "templates/template_dialog_reopen.h"
 #include "templates/template_track.h"
 #include "tools/box_zoom_tool.h"
+#include "tools/cut_circle_tool.h"
 #include "tools/cut_tool.h"
 #include "tools/cut_hole_tool.h"
 #include "tools/cutout_tool.h"
@@ -2580,6 +2582,7 @@ void MapEditorController::updateObjectDependentActions()
 	bool have_multiple_parts     = map->getNumParts() > 1;
 	bool have_selection          = map->getNumSelectedObjects() > 0 && !editing_in_progress;
 	bool single_object_selected  = map->getNumSelectedObjects() == 1 && !editing_in_progress;
+	bool cuttable_point = single_object_selected && map->getFirstSelectedObject()->getSymbol()->getType() == Symbol::Point && map->getFirstSelectedObject()->getSymbol()->asPoint()->containsCircle();
 	bool have_line               = false;
 	bool have_area               = false;
 	bool have_area_with_holes    = false;
@@ -2660,8 +2663,8 @@ void MapEditorController::updateObjectDependentActions()
 	connect_paths_act->setEnabled(have_line);
 	connect_paths_act->setStatusTip(tr("Connect endpoints of paths which are close together.") + (connect_paths_act->isEnabled() ? QString{} : QString(QLatin1Char(' ') + tr("Select at least one line object to activate this tool."))));
 	
-	// have_are || have_line
-	cut_tool_act->setEnabled(have_area || have_line);
+	// have_area || have_line
+	cut_tool_act->setEnabled(have_area || have_line || cuttable_point);
 	cut_tool_act->setStatusTip(tr("Cut the selected objects into smaller parts.") + (cut_tool_act->isEnabled() ? QString{} : QString(QLatin1Char(' ') + tr("Select at least one line or area object to activate this tool."))));
 	convert_to_curves_act->setEnabled(have_area || have_line);
 	convert_to_curves_act->setStatusTip(tr("Turn paths made of straight segments into smooth bezier splines.") + (convert_to_curves_act->isEnabled() ? QString{} : QString(QLatin1Char(' ') + tr("Select a path object to activate this tool."))));
@@ -3371,10 +3374,15 @@ void MapEditorController::connectPathsClicked()
 	map->emitSelectionChanged();
 	map->emitSelectionEdited();
 }
+
 void MapEditorController::cutClicked()
 {
-	setTool(new CutTool(this, cut_tool_act));
+	if (map->getNumSelectedObjects() == 1 && map->getFirstSelectedObject()->getSymbol()->getType() == Symbol::Point)
+		setTool(new CutCircleTool(this, cut_tool_act));
+	else
+		setTool(new CutTool(this, cut_tool_act));
 }
+
 void MapEditorController::cutHoleClicked()
 {
 	setTool(new CutHoleTool(this, cut_hole_act, CutHoleTool::Path));

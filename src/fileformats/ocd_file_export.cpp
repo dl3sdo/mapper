@@ -2651,7 +2651,7 @@ QByteArray OcdFileExport::exportObjectCommon(const Object* object, OcdObject& oc
 	switch(ocd_object.type)
 	{
 	case 1:
-		ocd_object.num_items = decltype(ocd_object.num_items)(coords.size() + object->asPoint()->getNumArcs());
+		ocd_object.num_items = decltype(ocd_object.num_items)(coords.size() + object->asPoint()->getCutCircle().getNumArcs());
 		break;
 	case 4:
 		ocd_object.num_items = (static_cast<const TextObject*>(object)->getNumLines() == 0) ? 0 : 5;
@@ -2730,13 +2730,11 @@ QByteArray OcdFileExport::exportObjectCommon(const Object* object, OcdObject& oc
 
 void OcdFileExport::exportArcs(const PointObject* object, QByteArray& byte_array)
 {
-	auto arcs = *(object->getArcs());
-	if (arcs.size() > 1)
-		std::sort(begin(arcs), end(arcs),[](std::pair<int, int> a, std::pair<int, int> b) { return a.first < b.first; });
+	auto& arcs = object->getCutCircle().getArcs();
 	for (int i = 0; i < (int)arcs.size(); ++i)
 	{
-		auto start = (arcs.at(i).first + arcs.at(i).second) / 16;
-		auto end = (arcs.at(i+1 < (int)arcs.size() ? i+1 : 0).first) / 16;
+		auto start = arcs.at(i).first + arcs.at(i).second / 16;
+		auto end = arcs.at((i+1) % arcs.size()).first / 16;
 		if (start > 1800)
 			start -= 3600;
 		if (end > 1800)

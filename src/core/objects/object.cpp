@@ -310,12 +310,11 @@ void Object::save(QXmlStreamWriter& xml) const
 	else if (type == Point)
 	{
 		auto const* point = static_cast<PointObject const*>(this);
-		if (point->getNumArcs())
+		if (point->getCutCircle().getNumArcs())
 		{
 			XmlElementWriter arcs_element(xml, literal::arcs);
-			for (int i = 0; i < point->getNumArcs(); ++i)
+			for (const auto& arc : point->getCutCircle())
 			{
-				auto arc = point->getArc(i);
 				XmlElementWriter arc_element(xml, literal::arc);
 				arc_element.writeAttribute(literal::angle, arc.first);
 				arc_element.writeAttribute(literal::span, arc.second);
@@ -470,11 +469,12 @@ Object* Object::load(QXmlStreamReader& xml, Map* map, const SymbolDictionary& sy
 					XmlElementReader arc_element(xml);
 					auto angle = arc_element.attribute<int>(literal::angle);
 					auto span = arc_element.attribute<int>(literal::span);
-					point->addArc(std::pair<int, int>(angle, span));
+					point->getCutCircle().addArc(std::pair<int, int>(angle, span));
 				}
 				else
 					xml.skipCurrentElement(); // unknown
 			}
+			point->getCutCircle().sortGaps(); // just to be sure that gaps are sorted after loading
 		}
 		else
 			xml.skipCurrentElement(); // unknown
@@ -3258,6 +3258,75 @@ bool PathObject::isLineTooShort() const
 }
 
 
+// ### CutCircle ###
+CutCircle::CutCircle() = default;
+
+void CutCircle::importFromOCD(ArcsList& ocd_gap_list)
+{
+	arcs.clear();
+	for (auto& gap : ocd_gap_list)
+	{
+		if (gap.first < 0)
+			gap.first += 3600;
+		if (gap.second < 0)
+			gap.second += 3600;
+	}
+	if (ocd_gap_list.size() > 1)
+		std::sort(std::begin(ocd_gap_list), std::end(ocd_gap_list));
+	for (int i = 0; i < (int)ocd_gap_list.size(); ++i)
+	{
+		auto start = ocd_gap_list.at(i).second;
+		auto end = ocd_gap_list.at((i+1) % ocd_gap_list.size()).first;
+		auto span = end - start;
+		if (span < 0)
+			span += 3600;
+		addArc(std::pair<int, int>(start*16, span*16));
+	}
+}
+
+bool CutCircle::isAngleGap(int angle) const
+{
+	if (arcs.empty())
+		return false;
+	for (const auto& arc : arcs)
+	{
+		//qDebug("arc-arc: %i %i",arc.first,arc.first + arc.second);
+		if (angle >= arc.first && angle <= (arc.first + arc.second))
+			return false;
+	}
+	return true;
+}
+
+void CutCircle::deleteGap(int angle)
+{
+	Q_ASSERT(isAngleGap(angle));
+	
+	if (arcs.size() <= 1)
+	{
+		arcs.clear();
+		return;
+	}
+	for (int i = 0; i < (int)arcs.size(); ++i)
+	{
+		//qDebug("\nangle: %i i: %i first: %i second: %i",angle,i,arcs.at(i).first,arcs.at(i).second);
+		const auto j = (int)((i+1) % arcs.size());
+		// Since the arcs are sorted and deleting did not yet happen, this is the arc to be deleted:
+		if (j == 0)
+		{
+			arcs.at(i).second = arcs.front().first + (360*16*10) - arcs.at(i).first + arcs.front().second;
+			arcs.erase(arcs.begin());
+			return;
+		}
+		if (angle >= arcs.at(i).first && angle <= arcs.at(j).first)
+		{
+			arcs.at(i).second = arcs.at(j).first - arcs.at(i).first + arcs.at(j).second;
+			arcs.erase(arcs.begin() + j);
+			return;
+		}
+	}
+}
+
+
 // ### PointObject ###
 
 PointObject::PointObject(const Symbol* symbol)
@@ -3283,7 +3352,7 @@ void PointObject::copyFrom(const Object& other)
 	const PointObject* point_other = other.asPoint();
 	if (getSymbol() && getSymbol()->isRotatable())
 		setRotation(point_other->getRotation());
-	arcs = *(point_other->getArcs());
+	getCutCircle().setArcs(point_other->getCutCircle().getArcs());
 }
 
 

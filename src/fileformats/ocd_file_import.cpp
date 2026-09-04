@@ -1918,29 +1918,13 @@ Object* OcdFileImport::importObject(const O& ocd_object, MapPart* part)
 		
 		if (ocd_object.num_items > 1)
 		{
-			std::vector<std::pair<int, int>> input;
+			std::vector<std::pair<int, int>> ocd_gaps;
 			auto coords = reinterpret_cast<const Ocd::OcdPoint32 *>(ocd_object.coords);
 			for (int i = 1; i < (int)ocd_object.num_items; ++i)
 			{
-				auto first = coords[i].x;
-				if (first < 0)
-					first += 3600;
-				auto second = coords[i].y;
-				if (second < 0)
-					second += 3600;
-				input.push_back(std::pair<int, int>(first, second));
+				ocd_gaps.push_back(std::pair<int, int>(coords[i].x, coords[i].y));
 			}
-			if (input.size() > 1)
-				std::sort(begin(input), end(input),[](std::pair<int, int> a, std::pair<int, int> b) { return a.second < b.second; });
-			for (int i = 0; i < (int)input.size(); ++i)
-			{
-				auto start = input.at(i).second;
-				auto end = input.at(i+1 < (int)input.size() ? i+1 : 0).first;
-				auto span = end - start;
-				if (span < 0)
-					span += 3600;
-				p->addArc(std::pair<int, int>(start*16, span*16));
-			}
+			p->getCutCircle().importFromOCD(ocd_gaps);	// Note: importFromOCD() will modify ocd_gaps !
 		}
 		
 		p->setMap(map);

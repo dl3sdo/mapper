@@ -127,6 +127,16 @@ public:
 	 */
 	bool isSymmetrical() const;
 	
+	/**
+	 * Checks if point's base is a circle.
+	*/
+	bool isCircle() const;
+	
+	/**
+	 * Checks if point has at least one circle.
+	*/
+	bool containsCircle() const;
+	
 	// Getters / Setters
 	using Symbol::setRotatable; /* public visibility */
 	inline int getInnerRadius() const {return inner_radius;}

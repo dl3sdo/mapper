@@ -147,10 +147,10 @@ void CircleRenderable::render(QPainter &painter, const RenderConfig &config) con
 
 // ### ArcRenderable ###
 
-ArcRenderable::ArcRenderable(const PointSymbol* symbol, MapCoordF coord, const std::vector<std::pair<int, int>>* arcs, qreal rotation)
+ArcRenderable::ArcRenderable(const PointSymbol* symbol, MapCoordF coord, const std::vector<std::pair<int, int>>& arcs, qreal rotation)
  : Renderable(symbol->getOuterColor())
  , line_width(0.001 * symbol->getOuterWidth())
- , arcs(*arcs)
+ , arcs(arcs)
  , rotation(int(qRadiansToDegrees(rotation) * 160))
 {
 	double x = coord.x();
@@ -171,6 +171,9 @@ void ArcRenderable::render(QPainter &painter, const RenderConfig &config) const
 		painter.drawEllipse(rect.center(), 0.5 / config.scaling, 0.5 / config.scaling);
 	else
 	{
+		QPen pen(painter.pen());
+		pen.setCapStyle(Qt::FlatCap);
+		painter.setPen(pen);
 		for (const auto &arc : arcs)
 			painter.drawArc(rect, (rotation + arc.first) / 10, arc.second / 10);
 	}

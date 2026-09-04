@@ -74,7 +74,7 @@ protected:
 class ArcRenderable : public Renderable
 {
 public:
-	ArcRenderable(const PointSymbol* symbol, MapCoordF coord, const std::vector<std::pair<int, int>>* arcs, qreal rotation);
+	ArcRenderable(const PointSymbol* symbol, MapCoordF coord, const std::vector<std::pair<int, int>>& arcs, qreal rotation);
 	void render(QPainter& painter, const RenderConfig& config) const override;
 	PainterConfig getPainterConfig(const QPainterPath* clip_path = nullptr) const override;
 	
