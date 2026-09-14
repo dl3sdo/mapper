@@ -128,12 +128,12 @@ public:
 	bool isSymmetrical() const;
 	
 	/**
-	 * Checks if point's base is a circle.
+	 * Checks if point's base part is a circle.
 	*/
 	bool isCircle() const;
 	
 	/**
-	 * Checks if point has at least one circle.
+	 * Checks if point contains at least one circle.
 	*/
 	bool containsCircle() const;
 	

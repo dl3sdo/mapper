@@ -2582,7 +2582,6 @@ void MapEditorController::updateObjectDependentActions()
 	bool have_multiple_parts     = map->getNumParts() > 1;
 	bool have_selection          = map->getNumSelectedObjects() > 0 && !editing_in_progress;
 	bool single_object_selected  = map->getNumSelectedObjects() == 1 && !editing_in_progress;
-	bool cuttable_point = single_object_selected && map->getFirstSelectedObject()->getSymbol()->getType() == Symbol::Point && map->getFirstSelectedObject()->getSymbol()->asPoint()->containsCircle();
 	bool have_line               = false;
 	bool have_area               = false;
 	bool have_area_with_holes    = false;
@@ -2592,7 +2591,8 @@ void MapEditorController::updateObjectDependentActions()
 	bool first_selected_is_path  = have_selection && map->getFirstSelectedObject()->getType() == Object::Path;
 	bool uniform_symbol_selected = true;
 	const Symbol* uniform_symbol = nullptr;
-	const Symbol* first_selected_symbol= have_selection ? map->getFirstSelectedObject()->getSymbol() : nullptr;
+	const Symbol* first_selected_symbol = have_selection ? map->getFirstSelectedObject()->getSymbol() : nullptr;
+	bool cuttable_point          = single_object_selected && map->getFirstSelectedObject()->getType() == Object::Point && first_selected_symbol->asPoint()->containsCircle();	// NOLINT(clang-analyzer-core.CallAndMessage)
 	std::vector< bool > symbols_in_selection(map->getNumSymbols(), false);
 	
 	if (!editing_in_progress)
@@ -3377,7 +3377,7 @@ void MapEditorController::connectPathsClicked()
 
 void MapEditorController::cutClicked()
 {
-	if (map->getNumSelectedObjects() == 1 && map->getFirstSelectedObject()->getSymbol()->getType() == Symbol::Point)
+	if (map->getNumSelectedObjects() == 1 && map->getFirstSelectedObject()->getType() == Object::Point)
 		setTool(new CutCircleTool(this, cut_tool_act));
 	else
 		setTool(new CutTool(this, cut_tool_act));

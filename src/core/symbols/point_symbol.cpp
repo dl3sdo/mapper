@@ -181,16 +181,13 @@ void PointSymbol::createRenderablesScaled(const MapCoordF& coord, qreal rotation
 				if (point_symbol->getOuterColor() && point_symbol->getOuterWidth() > 0)
 				{
 					auto sub_object = std::unique_ptr<PointObject>(element.object.get()->asPoint()->duplicate());
-					//for (int i = 0; i < point->getNumArcs(); ++i)
-					for (const auto& arc : point->getCutCircle())
+					if (qIsNull(rotation))
+						sub_object->getCutCircle().setArcs(point->getCutCircle().getArcs());
+					else
 					{
-						//const auto arc = point->getArc(i);
-						if (!qIsNull(rotation))
+						for (const auto& arc : point->getCutCircle())
 							sub_object->getCutCircle().addArc({arc.first + qRadiansToDegrees(-rotation) * 160, arc.second});
-						else
-							sub_object->getCutCircle().addArc(arc);
 					}
-					
 					element.symbol->createRenderables(sub_object.get(), VirtualCoordVector(object_coords, transformed_coords), output, Symbol::RenderNormal);
 					continue;
 				}
@@ -490,7 +487,7 @@ bool PointSymbol::isCircle() const
 
 bool PointSymbol::containsCircle() const
 {
-	if (getNumElements() == 0)
+	if (getNumElements() == 0 || isCircle())
 		return isCircle();
 	return std::any_of(begin(elements), end(elements), [](auto& element) {
 		return element.symbol->getType() == Symbol::Point && element.symbol->asPoint()->isCircle();
