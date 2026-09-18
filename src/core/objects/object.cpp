@@ -131,6 +131,7 @@ void Object::copyFrom(const Object& other)
 	object_tags = other.object_tags;
 	output_dirty = true;
 	extent = other.extent;
+	visible = other.visible;
 }
 
 bool Object::equals(const Object* other, bool compare_symbol) const
@@ -188,6 +189,9 @@ bool Object::equals(const Object* other, bool compare_symbol) const
 	
 	if (object_tags.empty())
 		return other->object_tags.empty();
+	
+	if (visible != other->visible)
+		return false;
 	
 	using std::begin; using std::end;
 	return std::is_permutation(object_tags.begin(), object_tags.end(), other->object_tags.begin(), other->object_tags.end());
