@@ -29,7 +29,6 @@
 #include "settings.h"
 #include "core/map.h"
 #include "core/map_part.h"
-//#include "core/map_view.h"
 #include "core/objects/object.h"
 #include "core/symbols/point_symbol.h"
 #include "core/symbols/symbol.h"

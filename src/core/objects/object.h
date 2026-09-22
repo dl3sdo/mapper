@@ -1056,14 +1056,14 @@ public:
 	
 	using ArcsList = std::vector<std::pair<int, int>>;
 	
-	ArcsList::const_iterator begin() const { return arcs.begin(); };
-	ArcsList::const_iterator end() const { return arcs.end(); };
-	ArcsList& getArcs() { return arcs; };
-	const ArcsList& getArcs() const { return arcs; };
-	void setArcs(const ArcsList& other) { arcs = other; };
-	int getNumArcs() const { return arcs.size(); };
-	const std::pair<int, int> getArc(int index) const { return arcs.at(index); };
-	void addArc(std::pair<int, int> arc) { arcs.emplace_back(arc); };
+	ArcsList::const_iterator begin() const { return arcs.begin(); }
+	ArcsList::const_iterator end() const { return arcs.end(); }
+	ArcsList& getArcs() { return arcs; }
+	const ArcsList& getArcs() const { return arcs; }
+	void setArcs(const ArcsList& other) { arcs = other; }
+	int getNumArcs() const { return arcs.size(); }
+	const std::pair<int, int> getArc(int index) const { return arcs.at(index); }
+	void addArc(std::pair<int, int> arc) { arcs.emplace_back(arc); }
 	void importFromOCD(ArcsList& ocd_gap_list);
 	void exportToOCD(QByteArray& byte_array) const;
 	bool isAngleInAnyGap(int angle) const;

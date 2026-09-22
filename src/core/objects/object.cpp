@@ -193,7 +193,8 @@ bool Object::equals(const Object* other, bool compare_symbol) const
 	}
 	else if (type == Point)
 	{
-		return (this->asPoint()->getCutCircle().getArcs() == other->asPoint()->getCutCircle().getArcs());
+		if (this->asPoint()->getCutCircle().getArcs() != other->asPoint()->getCutCircle().getArcs())
+			return false;
 	}
 	
 	if (object_tags.empty())
